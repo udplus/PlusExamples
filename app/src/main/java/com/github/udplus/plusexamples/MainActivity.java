@@ -34,12 +34,40 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private String TAG = MainActivity.class.getSimpleName();
-    private boolean mDarkThemeSwitchPref = false;
+    private boolean mDarkTheme = false;
     private SharedPreferences mSharedPref;
     private SwitchCompat mDarkThemeDrawerSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        //-------------------------------
+        // done: start activity SettingsActivity
+        // done: add action menu action_dark_theme
+
+        // PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
+        // String preferencesName = this.getPreferenceManager().getSharedPreferencesName();
+
+        // ------------------------------
+        mSharedPref =
+                PreferenceManager.getDefaultSharedPreferences(this);
+        // Boolean switchPref = mSharedPref.getBoolean
+        //         (SettingsActivity.KEY_PREF_EXAMPLE_SWITCH, false);
+        mDarkTheme = mSharedPref.getBoolean
+                (SettingsActivity.KEY_PREF_DARK_THEME_SWITCH, false);
+
+        //--------------------------------------
+        // change theme
+        // setTheme(R.style.AppTheme);
+        if (mDarkTheme) {
+            // setTheme(android.R.style.Theme_Black);
+            // setTheme(darkTheme ? R.style.AppThemeDark : R.style.AppThemeLight);
+            setTheme(R.style.AppThemeDark_NoActionBar);
+        } else {
+            setTheme(R.style.AppTheme_NoActionBar);
+        }
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -47,20 +75,6 @@ public class MainActivity extends AppCompatActivity
 
         Flow.main_coCreate();
 
-        //---------------
-        // done: start activity SettingsActivity
-        // done: add action menu action_dark_theme
-
-        // PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
-        // String preferencesName = this.getPreferenceManager().getSharedPreferencesName();
-
-        // todo: mSharePref
-        mSharedPref =
-                PreferenceManager.getDefaultSharedPreferences(this);
-        // Boolean switchPref = mSharedPref.getBoolean
-        //         (SettingsActivity.KEY_PREF_EXAMPLE_SWITCH, false);
-        mDarkThemeSwitchPref = mSharedPref.getBoolean
-                (SettingsActivity.KEY_PREF_DARK_THEME_SWITCH, false);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -90,12 +104,12 @@ public class MainActivity extends AppCompatActivity
         );
         //
         mDarkThemeDrawerSwitch = (SwitchCompat) navigationView.getMenu().findItem(R.id.nav_dark_theme).getActionView();
-        mDarkThemeDrawerSwitch.setChecked(mDarkThemeSwitchPref);
+        mDarkThemeDrawerSwitch.setChecked(mDarkTheme);
         mDarkThemeDrawerSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Toast.makeText(MainActivity.this, "click: " + isChecked, Toast.LENGTH_SHORT).show();
-                mDarkThemeSwitchPref = isChecked;
+                mDarkTheme = isChecked;
                 if (isChecked) {
                     // do stuff
                 } else {
@@ -113,7 +127,7 @@ public class MainActivity extends AppCompatActivity
 
         Log.d(TAG, "onStart");
 
-        mDarkThemeSwitchPref = mSharedPref.getBoolean
+        mDarkTheme = mSharedPref.getBoolean
                 (SettingsActivity.KEY_PREF_DARK_THEME_SWITCH, false);
 
     }
@@ -144,8 +158,8 @@ public class MainActivity extends AppCompatActivity
 
         // set dark theme
         MenuItem menuItem = menu.findItem(R.id.action_dark_theme);
-        menuItem.setChecked(mDarkThemeSwitchPref);
-        mDarkThemeDrawerSwitch.setChecked(mDarkThemeSwitchPref);
+        menuItem.setChecked(mDarkTheme);
+        mDarkThemeDrawerSwitch.setChecked(mDarkTheme);
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -174,15 +188,11 @@ public class MainActivity extends AppCompatActivity
             sharedPref.edit().putBoolean(SettingsActivity.KEY_PREF_DARK_THEME_SWITCH, item.isChecked()).commit();
 
             Toast.makeText(this, "item.isChecked: "+ item.isChecked(), Toast.LENGTH_SHORT).show();
+            recreate();
         }
 
         return super.onOptionsItemSelected(item);
     }
-
-    private void changeDarkTheme() {
-
-    }
-
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -235,5 +245,17 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(this, "Hello World! 하이 윈도우7 - 스위치 오프", Toast.LENGTH_SHORT).show();
 
         }
+
+        changeDarkTheme();
+    }
+
+    private void changeDarkTheme() {
+        // How to change current Theme at runtime in Android
+        if (mDarkTheme) {
+            Toast.makeText(this, "Dark", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Light", Toast.LENGTH_SHORT).show();
+        }
+        recreate();
     }
 }
