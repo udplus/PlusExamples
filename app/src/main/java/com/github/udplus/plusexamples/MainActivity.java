@@ -14,7 +14,9 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -25,7 +27,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity
     private String TAG = MainActivity.class.getSimpleName();
     private boolean mDarkThemeSwitchPref = false;
     private SharedPreferences mSharedPref;
+    private SwitchCompat mDarkThemeDrawerSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,24 +46,6 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         Flow.main_coCreate();
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
 
         //---------------
         // done: start activity SettingsActivity
@@ -74,6 +59,50 @@ public class MainActivity extends AppCompatActivity
                 PreferenceManager.getDefaultSharedPreferences(this);
         // Boolean switchPref = mSharedPref.getBoolean
         //         (SettingsActivity.KEY_PREF_EXAMPLE_SWITCH, false);
+        mDarkThemeSwitchPref = mSharedPref.getBoolean
+                (SettingsActivity.KEY_PREF_DARK_THEME_SWITCH, false);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+
+        //-- drawer --
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        //-- navigation view --
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setOnCreateContextMenuListener(new NavigationView.OnCreateContextMenuListener() {
+                  @Override
+                  public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+                      Log.d(TAG, "navigationView.OnCreateContextMenuListener");
+                  }
+              }
+        );
+        //
+        mDarkThemeDrawerSwitch = (SwitchCompat) navigationView.getMenu().findItem(R.id.nav_dark_theme).getActionView();
+        mDarkThemeDrawerSwitch.setChecked(mDarkThemeSwitchPref);
+        mDarkThemeDrawerSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Toast.makeText(MainActivity.this, "click: " + isChecked, Toast.LENGTH_SHORT).show();
+                mDarkThemeSwitchPref = isChecked;
+                if (isChecked) {
+                    // do stuff
+                } else {
+                    // do other stuff
+                }
+            }
+        });
 
 
     }
@@ -116,6 +145,7 @@ public class MainActivity extends AppCompatActivity
         // set dark theme
         MenuItem menuItem = menu.findItem(R.id.action_dark_theme);
         menuItem.setChecked(mDarkThemeSwitchPref);
+        mDarkThemeDrawerSwitch.setChecked(mDarkThemeSwitchPref);
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -140,6 +170,7 @@ public class MainActivity extends AppCompatActivity
                 // If item is unchecked then checked it
                 item.setChecked(true);
             }
+            mDarkThemeDrawerSwitch.setChecked(item.isChecked());
             sharedPref.edit().putBoolean(SettingsActivity.KEY_PREF_DARK_THEME_SWITCH, item.isChecked()).commit();
 
             Toast.makeText(this, "item.isChecked: "+ item.isChecked(), Toast.LENGTH_SHORT).show();
@@ -151,6 +182,7 @@ public class MainActivity extends AppCompatActivity
     private void changeDarkTheme() {
 
     }
+
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -170,7 +202,18 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_send) {
 
+        } else if (id == R.id.nav_dark_theme) {
+            Log.d(TAG, "nav dark theme");
+            // todo: selectTheme()
+
+
+        } else if (id == R.id.nav_settings) {
+
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
         }
+        // config
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
