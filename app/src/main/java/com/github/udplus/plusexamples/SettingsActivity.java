@@ -42,6 +42,9 @@ import java.util.List;
  */
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
+    public static final String KEY_PREF_EXAMPLE_SWITCH = "example_switch";
+    public static final String KEY_PREF_DARK_THEME_SWITCH = "dark_theme_switch";
+
     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
@@ -128,6 +131,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setupActionBar();
+
+        Flow.settings();
     }
 
     /**

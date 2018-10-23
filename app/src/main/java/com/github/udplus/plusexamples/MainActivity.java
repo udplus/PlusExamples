@@ -9,10 +9,13 @@
 package com.github.udplus.plusexamples;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
+import android.view.MenuInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -22,12 +25,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.CheckBox;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private String TAG = MainActivity.class.getSimpleName();
+    private boolean mDarkThemeSwitchPref = false;
+    private SharedPreferences mSharedPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +61,32 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        //---------------
+        // done: start activity SettingsActivity
+        // done: add action menu action_dark_theme
+
+        // PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
+        // String preferencesName = this.getPreferenceManager().getSharedPreferencesName();
+
+        // todo: mSharePref
+        mSharedPref =
+                PreferenceManager.getDefaultSharedPreferences(this);
+        // Boolean switchPref = mSharedPref.getBoolean
+        //         (SettingsActivity.KEY_PREF_EXAMPLE_SWITCH, false);
+
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        Log.d(TAG, "onStart");
+
+        mDarkThemeSwitchPref = mSharedPref.getBoolean
+                (SettingsActivity.KEY_PREF_DARK_THEME_SWITCH, false);
+
     }
 
     @Override
@@ -70,8 +102,22 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.main, menu);
+        Log.d(TAG, "onCreateOptionsMenu");
+
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        Log.d(TAG, "onPrepareOptionsMenu");
+
+        // set dark theme
+        MenuItem menuItem = menu.findItem(R.id.action_dark_theme);
+        menuItem.setChecked(mDarkThemeSwitchPref);
+
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -81,14 +127,29 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
             startActivity(intent);
             return true;
+        } else if (id == R.id.action_dark_theme) {
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+            if(item.isChecked()){
+                // If item already checked then unchecked it
+                item.setChecked(false);
+            }else{
+                // If item is unchecked then checked it
+                item.setChecked(true);
+            }
+            sharedPref.edit().putBoolean(SettingsActivity.KEY_PREF_DARK_THEME_SWITCH, item.isChecked()).commit();
+
+            Toast.makeText(this, "item.isChecked: "+ item.isChecked(), Toast.LENGTH_SHORT).show();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void changeDarkTheme() {
+
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -117,7 +178,19 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onHello(View view) {
-        Toast.makeText(this, "Hello World! 하이 윈도우7", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "Hello Word! 하이 윈도우 7");
+
+        SharedPreferences sharedPref =
+                PreferenceManager.getDefaultSharedPreferences(this);
+        Boolean switchPref = sharedPref.getBoolean
+                (SettingsActivity.KEY_PREF_EXAMPLE_SWITCH, false);
+
+        // Toast.makeText(this, switchPref.toString(), Toast.LENGTH_SHORT).show();
+        if (switchPref) {
+            Toast.makeText(this, "Hello World! 하이 윈도우7 - 스위치 온", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Hello World! 하이 윈도우7 - 스위치 오프", Toast.LENGTH_SHORT).show();
+
+        }
     }
 }
