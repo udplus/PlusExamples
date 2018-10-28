@@ -46,7 +46,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     public static final String KEY_PREF_DARK_THEME_SWITCH = "dark_theme_switch";
 
     /**
-     * A preference value change listener that updates the preference's summary
+     * A preference value change MyRecognitionListener that updates the preference's summary
      * to reflect its new value.
      */
     private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
@@ -116,10 +116,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * @see #sBindPreferenceSummaryToValueListener
      */
     private static void bindPreferenceSummaryToValue(Preference preference) {
-        // Set the listener to watch for value changes.
+        // Set the MyRecognitionListener to watch for value changes.
         preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
 
-        // Trigger the listener immediately with the preference's
+        // Trigger the MyRecognitionListener immediately with the preference's
         // current value.
         sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
                 PreferenceManager

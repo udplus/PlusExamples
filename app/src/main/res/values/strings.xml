@@ -82,4 +82,6 @@
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="pref_description_dark_theme_switch">Dark Theme Switch</string>
     <string name="pref_title_dark_theme_switch">Dark Theme</string>
+    <string name="title_activity_speech_to_text">SpeechToTextActivity</string>
+    <string name="title_activity_dialogs">DialogsActivity</string>
 </resources>

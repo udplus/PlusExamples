@@ -5,8 +5,16 @@ package com.github.udplus.plusexamples;
 class Flow {
 
     /**
+     * PreferenceManager
+     * */
+    public static void onCreate() {
+
+    }
+
+    /**
      * 메인 엑티비티 생성<br>
      * 주석 만들기
+     * {@link SpeechToTextActivity.MyRecognitionListener}
      */
     public static void main_coCreate() {
     }
@@ -22,5 +30,12 @@ class Flow {
      * API Guide</a> for more information on developing a Settings UI.
      * */
     public static void settings() {
+    }
+
+    /**
+     * {@link MainActivity}
+     * @param args
+     */
+    public static void main(String[] args) {
     }
 }

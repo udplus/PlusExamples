@@ -1,10 +1,4 @@
-/*
- * Copyright (c) 2018. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
- * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
- * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
- * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
- * Vestibulum commodo. Ut rhoncus gravida arcu.
- */
+
 
 package com.github.udplus.plusexamples;
 
@@ -30,6 +24,9 @@ import android.view.MenuItem;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 
+/**
+* PlusExamples MainActivity
+* */
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -40,6 +37,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Flow.onCreate();
 
         //-------------------------------
         // done: start activity SettingsActivity
@@ -47,34 +45,28 @@ public class MainActivity extends AppCompatActivity
 
         // PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
         // String preferencesName = this.getPreferenceManager().getSharedPreferencesName();
-
+        Log.d(TAG, "onCreate:start");
         // ------------------------------
         mSharedPref =
                 PreferenceManager.getDefaultSharedPreferences(this);
-        // Boolean switchPref = mSharedPref.getBoolean
-        //         (SettingsActivity.KEY_PREF_EXAMPLE_SWITCH, false);
         mDarkTheme = mSharedPref.getBoolean
                 (SettingsActivity.KEY_PREF_DARK_THEME_SWITCH, false);
 
         //--------------------------------------
         // change theme
-        // setTheme(R.style.AppTheme);
         if (mDarkTheme) {
-            // setTheme(android.R.style.Theme_Black);
-            // setTheme(darkTheme ? R.style.AppThemeDark : R.style.AppThemeLight);
             setTheme(R.style.AppThemeDark_NoActionBar);
         } else {
             setTheme(R.style.AppTheme_NoActionBar);
         }
 
-
+        //-----------------------------------------
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         Flow.main_coCreate();
-
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -95,26 +87,14 @@ public class MainActivity extends AppCompatActivity
         //-- navigation view --
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setOnCreateContextMenuListener(new NavigationView.OnCreateContextMenuListener() {
-                  @Override
-                  public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-                      Log.d(TAG, "navigationView.OnCreateContextMenuListener");
-                  }
-              }
-        );
-        //
+
+        // Dark Theme
         mDarkThemeDrawerSwitch = (SwitchCompat) navigationView.getMenu().findItem(R.id.nav_dark_theme).getActionView();
         mDarkThemeDrawerSwitch.setChecked(mDarkTheme);
-        mDarkThemeDrawerSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mDarkThemeDrawerSwitch.setOnClickListener(new CompoundButton.OnClickListener(){
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Toast.makeText(MainActivity.this, "click: " + isChecked, Toast.LENGTH_SHORT).show();
-                mDarkTheme = isChecked;
-                if (isChecked) {
-                    // do stuff
-                } else {
-                    // do other stuff
-                }
+            public void onClick(View v) {
+                changeTheme(!mDarkTheme);
             }
         });
 
@@ -124,11 +104,15 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-
         Log.d(TAG, "onStart");
 
-        mDarkTheme = mSharedPref.getBoolean
+        boolean isDarkTheme = mSharedPref.getBoolean
                 (SettingsActivity.KEY_PREF_DARK_THEME_SWITCH, false);
+
+        if (mDarkTheme != isDarkTheme) {
+            changeTheme(isDarkTheme);
+        }
+
 
     }
 
@@ -176,7 +160,7 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
             return true;
         } else if (id == R.id.action_dark_theme) {
-            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+            // SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
             if(item.isChecked()){
                 // If item already checked then unchecked it
                 item.setChecked(false);
@@ -184,11 +168,13 @@ public class MainActivity extends AppCompatActivity
                 // If item is unchecked then checked it
                 item.setChecked(true);
             }
-            mDarkThemeDrawerSwitch.setChecked(item.isChecked());
-            sharedPref.edit().putBoolean(SettingsActivity.KEY_PREF_DARK_THEME_SWITCH, item.isChecked()).commit();
 
-            Toast.makeText(this, "item.isChecked: "+ item.isChecked(), Toast.LENGTH_SHORT).show();
-            recreate();
+            boolean isChecked = item.isChecked();
+            mSharedPref.edit().putBoolean(SettingsActivity.KEY_PREF_DARK_THEME_SWITCH, isChecked).commit();
+            mDarkThemeDrawerSwitch.setChecked(isChecked); // recreate
+            changeTheme(isChecked);
+            return true;
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -215,8 +201,6 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_dark_theme) {
             Log.d(TAG, "nav dark theme");
             // todo: selectTheme()
-
-
         } else if (id == R.id.nav_settings) {
 
             Intent intent = new Intent(this, SettingsActivity.class);
@@ -231,31 +215,46 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onHello(View view) {
-        Log.d(TAG, "Hello Word! 하이 윈도우 7");
-
+        // 1. SharedPreferences 기본 연습
         SharedPreferences sharedPref =
                 PreferenceManager.getDefaultSharedPreferences(this);
         Boolean switchPref = sharedPref.getBoolean
                 (SettingsActivity.KEY_PREF_EXAMPLE_SWITCH, false);
 
-        // Toast.makeText(this, switchPref.toString(), Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "Hello Word! 7 : " + switchPref);
         if (switchPref) {
-            Toast.makeText(this, "Hello World! 하이 윈도우7 - 스위치 온", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Hello World! 7 - 스위치 온", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "Hello World! 하이 윈도우7 - 스위치 오프", Toast.LENGTH_SHORT).show();
-
+            Toast.makeText(this, "Hello World! 7 - 스위치 오프", Toast.LENGTH_SHORT).show();
         }
 
-        changeDarkTheme();
     }
 
-    private void changeDarkTheme() {
+    private void changeTheme(boolean isDarkTheme) {
         // How to change current Theme at runtime in Android
-        if (mDarkTheme) {
-            Toast.makeText(this, "Dark", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Light", Toast.LENGTH_SHORT).show();
-        }
+        Log.d(TAG, "changeTheme: isDarkTheme:" + isDarkTheme + " mDarkTheme: " + mDarkTheme );
+        mDarkTheme = isDarkTheme;
+        mSharedPref.edit().putBoolean(SettingsActivity.KEY_PREF_DARK_THEME_SWITCH, mDarkTheme).commit();
+        // -- recreate activity
         recreate();
+    }
+
+    public void onChangeTheme(View view) {
+        // 2. 다크 테마로 전환 처리
+        changeTheme(!mDarkTheme);
+    }
+
+    public void onInputDialog(View view) {
+        // 3. 각종 다이얼로그
+        Intent intent = new Intent(this, DialogsActivity.class);
+        startActivity(intent);
+
+    }
+
+
+    public void onSpeechToText(View view) {
+        // 4. 음성 인식
+        Intent intent = new Intent(this, SpeechToTextActivity.class);
+        startActivity(intent);
     }
 }
